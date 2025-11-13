@@ -8,10 +8,10 @@ public class TShirtPricer
     {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Input the amount of shirts: ");
+        System.out.print("Input the amount of shirts: ");
         int shirts = scanner.nextInt();
 
-        System.out.println("Input the number of colors: ");
+        System.out.print("Input the number of colors: ");
         int colors = scanner.nextInt();
 
         double price = 8.50;

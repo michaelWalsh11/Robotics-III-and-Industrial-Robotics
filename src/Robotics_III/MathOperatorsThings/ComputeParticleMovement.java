@@ -8,10 +8,10 @@ public class ComputeParticleMovement
     {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Input the mass: ");
+        System.out.print("Input the mass: ");
         double mass = scanner.nextDouble();
 
-        System.out.println("Input the velocity: ");
+        System.out.print("Input the velocity: ");
         double velocity = scanner.nextDouble();
 
         double particleMovement = mass * velocity;

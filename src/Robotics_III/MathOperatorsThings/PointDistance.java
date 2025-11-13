@@ -8,7 +8,7 @@ public class PointDistance
     {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Enter coordinates 1 and 2 ex. (1, 2) (3, 2): ");
+        System.out.print("Enter coordinates 1 and 2 ex. (1, 2) (3, 2): ");
         String cords = scanner.nextLine();
 
         String cord1 = cords.substring(0, cords.indexOf(")") + 1);
