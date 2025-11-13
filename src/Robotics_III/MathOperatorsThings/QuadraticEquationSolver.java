@@ -9,19 +9,22 @@ public class QuadraticEquationSolver
         Scanner scanner = new Scanner(System.in);
 
         System.out.print("Enter value for a: ");
-        int a = scanner.nextInt();
+        double a = scanner.nextDouble();
 
         System.out.print("Enter value for b: ");
-        int b = scanner.nextInt();
+        double b = scanner.nextDouble();
 
         System.out.print("Enter value for c: ");
-        int c = scanner.nextInt();
+        double c = scanner.nextDouble();
 
         double discriminant = Math.pow(b, 2) - 4 * a * c;
 
-        if (discriminant < 0) {
+        if (discriminant < 0)
+        {
             System.out.println("NO SOLUTION :(");
-        } else {
+        }
+        else
+        {
             double output1 = (-b + Math.sqrt(discriminant)) / (2 * a);
             double output2 = (-b - Math.sqrt(discriminant)) / (2 * a);
 
