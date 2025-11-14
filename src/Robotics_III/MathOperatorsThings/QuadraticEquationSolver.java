@@ -2,6 +2,13 @@ package Robotics_III.MathOperatorsThings;
 
 import java.util.Scanner;
 
+/**
+ * This program first asks the user to the input of a, b, and c
+ * then it determines if the discriminant is negative and if
+ * it is then it is unsolvable, if it isn't then it finds the two
+ * answers and returns them.
+ */
+
 public class QuadraticEquationSolver
 {
     public static void main(String[] args)

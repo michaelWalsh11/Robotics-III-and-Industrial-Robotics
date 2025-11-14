@@ -2,6 +2,13 @@ package Robotics_III.MathOperatorsThings;
 
 import java.util.Scanner;
 
+/**
+ * This program takes the inputs about the size of the order
+ * and types of shirts and uses those in accordance with
+ * preset prices to develop the final price of the given order
+ * it uses a series of if statements to find the final answer.
+ */
+
 public class TShirtPricer
 {
     public static void main(String [] args)

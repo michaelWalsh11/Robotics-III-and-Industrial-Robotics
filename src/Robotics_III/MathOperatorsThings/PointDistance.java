@@ -2,6 +2,14 @@ package Robotics_III.MathOperatorsThings;
 
 import java.util.Scanner;
 
+/**
+ * @author MichaelWalsh27
+ * This asks the user for two sets of coordinates, and it finds the amount
+ * of units between them. The original task was to ask for four numbers, but
+ * I adjusted it so that you would give one peice of data, and it would sort
+ * through it and find the numbers to do the distance formula with.
+ */
+
 public class PointDistance
 {
     public static void main(String [] args)
