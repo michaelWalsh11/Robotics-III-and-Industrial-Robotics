@@ -2,35 +2,48 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
+import javax.swing.*;
+import java.awt.event.*;
 
 public class DataReader
 {
     public static double left = 70;
     public static double bottom = 70;
 
-    public static int width = 500;
-    public static int height = 500;
+    public static int width = 600;
+    public static int height = 600;
+
+    public static String mode = "vel";
 
 
     public static void main(String[] args) throws FileNotFoundException {
-        String path = "positions_v1.txt";
+        String path = "positions_v2.txt";
         double[] data = readData(path);
 
         setup();
 
         //Position vs Time
-//        graphSetup(data, "Position", "Time");
-//        plotPoints(data);
-//
-//        //Velocity vs Time
-//        double [] velocity = convertDataToVelocity(data);
-//        graphSetup(velocity, "Velocity", "Time");
-//        plotPoints(velocity);
+        if (mode.equals("pos"))
+        {
+            graphSetup(data, "Position", "Time");
+            plotPoints(data);
+        }
+
+        //Velocity vs Time
+        if (mode.equals("vel"))
+        {
+            double [] velocity = convertDataToVelocity(data);
+            graphSetup(velocity, "Velocity", "Time");
+            plotPoints(velocity);
+        }
 
         //acceleration vs Time
-        double [] acceleration = convertDataToAcceleration(data);
-        graphSetup(acceleration, "Acceleration", "Time");
-        plotPoints(acceleration);
+        if (mode.equals("acc"))
+        {
+            double[] acceleration = convertDataToAcceleration(data);
+            graphSetup(acceleration, "Acceleration", "Time");
+            plotPoints(acceleration);
+        }
     }
 
     public static double [] convertDataToAcceleration(double [] arr)
