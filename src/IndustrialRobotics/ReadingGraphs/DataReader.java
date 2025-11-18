@@ -13,11 +13,12 @@ public class DataReader
     public static int width = 600;
     public static int height = 600;
 
-    public static String mode = "vel";
+    public static String mode = "pos";
+    public static String version = "1";
 
 
     public static void main(String[] args) throws FileNotFoundException {
-        String path = "positions_v2.txt";
+        String path = "positions_v" + version + ".txt";
         double[] data = readData(path);
 
         setup();
