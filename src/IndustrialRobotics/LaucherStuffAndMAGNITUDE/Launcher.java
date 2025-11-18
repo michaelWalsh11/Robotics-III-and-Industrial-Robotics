@@ -23,6 +23,10 @@ public class Launcher
     {
         ArrayList<Point> points = new ArrayList<>();
 
+        double timeInAir = (magnitude * Math.sin(theta) + Math.sqrt((magnitude * Math.sin(theta)) *
+                (magnitude * Math.sin(theta)) * (magnitude * Math.sin(theta)) + 2 * gravity * yPos)) / gravity;
+
+
         //not done
 
         return points;
