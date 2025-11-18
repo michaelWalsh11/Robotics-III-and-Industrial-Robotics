@@ -26,12 +26,17 @@ public class Launcher
         double timeInAir = (magnitude * Math.sin(theta) + Math.sqrt((magnitude * Math.sin(theta)) *
                 (magnitude * Math.sin(theta)) * (magnitude * Math.sin(theta)) + 2 * gravity * yPos)) / gravity;
 
+        for (int i = 0; i < timeInAir; i += 0.1)
+        {
+            int x = (int) (xPos + magnitude * Math.cos(theta) * i);
+            int y = (int) (yPos + (magnitude * Math.sin(theta) * i) - (0.5 * gravity * Math.sqrt(i)));
 
-        //not done
+            points.add(new Point(x, y));
+        }
 
         return points;
     }
-
+git
     public void setMagnitude(double magnitude)
     {
         this.magnitude = magnitude;
