@@ -13,8 +13,8 @@ public class DataReader
     public static int width = 600;
     public static int height = 600;
 
-    public static String mode = "pos";
-    public static String version = "1";
+    public static String mode = "acc";
+    public static String version = "2";
 
 
     public static void main(String[] args) throws FileNotFoundException {
@@ -49,26 +49,37 @@ public class DataReader
 
     public static double [] convertDataToAcceleration(double [] arr)
     {
+        //calls the velocity one because it is change in velocity over time to get acceleration
         double [] velocity = convertDataToVelocity(arr);
+        //same reason as the last as to why it is one shorter
         double[] acceleration = new double[velocity.length - 1];
 
+        //loops through acceleration indexes
         for (int x = 0; x < acceleration.length; x++)
         {
+            //computes the difference between indexes in the velocity array
             acceleration[x] = velocity[x +1] - velocity[x];
         }
 
+        //returns acceleration array
         return acceleration;
     }
 
     public static double [] convertDataToVelocity(double [] arr)
     {
+        //creates a array to store the data for velocity to return one shorter
+        //because one of them obviously cant have changed between itself and the
+        //other
         double[] velocity = new double[arr.length - 1];
 
+        //loops through the length of velocity
         for (int x = 0; x < velocity.length; x++)
         {
+            //computes the difference between indexes in the original array
             velocity[x] = arr[x + 1] - arr[x];
         }
 
+        //returns the array of velocities.
         return velocity;
 
     }
