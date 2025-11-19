@@ -13,8 +13,8 @@ public class DataReader
     public static int width = 600;
     public static int height = 600;
 
-    public static String mode = "acc";
-    public static String version = "2";
+    public static String mode = "acc"; //pos or vel or acc
+    public static String version = "2"; // 1 or 2 for file
 
 
     public static void main(String[] args) throws FileNotFoundException {

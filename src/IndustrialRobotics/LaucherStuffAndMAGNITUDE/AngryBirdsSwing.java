@@ -4,9 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import javax.swing.Timer;
+import java.util.Iterator;
+
 
 /**
  * AngryBirdsSwing.java
@@ -15,9 +17,9 @@ import javax.swing.Timer;
  * Compile:
  *   javac AngryBirdsSwing.java
  * Run:
- *   java AngryBirdsSwing
+ *   java IndustrialRobotics.LaucherStuffAndMAGNITUDE.AngryBirdsSwing
  *
- * Made to be lush and colorful.
+ * Lush and colorful with trajectory prediction added.
  */
 public class AngryBirdsSwing extends JFrame {
     public AngryBirdsSwing() {
@@ -53,6 +55,9 @@ class GamePanel extends JPanel implements ActionListener, MouseListener, MouseMo
     private int score = 0;
     private int birdsLeft = 5;
 
+    // Trajectory prediction points (ghost arc)
+    private java.util.List<Point2D.Double> predictedPoints = Collections.synchronizedList(new ArrayList<>());
+
     // Appearance toggles
     private final Font uiFont = new Font("SansSerif", Font.BOLD, 16);
 
@@ -77,6 +82,7 @@ class GamePanel extends JPanel implements ActionListener, MouseListener, MouseMo
         blocks.clear();
         birds.clear();
         particles.clear();
+        predictedPoints.clear();
         score = 0;
         birdsLeft = 5;
 
@@ -111,6 +117,7 @@ class GamePanel extends JPanel implements ActionListener, MouseListener, MouseMo
         currentBird = new Bird(slingAnchor.x - 30, slingAnchor.y + 5, 18);
         birds.add(currentBird);
         birdsLeft--;
+        predictedPoints.clear();
     }
 
     @Override
@@ -332,10 +339,41 @@ class GamePanel extends JPanel implements ActionListener, MouseListener, MouseMo
         // draw slingshot front and elastic when dragging or bird not launched
         drawSlingshot(g);
 
+        // Draw predicted trajectory (ghost dots) - after slingshot so it's visible
+        drawPredictedTrajectory(g);
+
         // UI overlay
         drawUI(g);
 
         g.dispose();
+    }
+
+    private void drawPredictedTrajectory(Graphics2D g) {
+        synchronized (predictedPoints) {
+            if (predictedPoints.isEmpty()) return;
+
+            // line path
+            Stroke oldStroke = g.getStroke();
+            g.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            // translucent guide line
+            g.setColor(new Color(255, 255, 255, 90));
+            Point2D.Double prev = null;
+            for (Point2D.Double p : predictedPoints) {
+                if (prev != null) {
+                    g.draw(new Line2D.Double(prev.x, prev.y, p.x, p.y));
+                }
+                prev = p;
+            }
+
+            // dotted points
+            for (int i = 0; i < predictedPoints.size(); i++) {
+                Point2D.Double p = predictedPoints.get(i);
+                double sz = 6 * (1.0 - i / (double)Math.max(1, predictedPoints.size())); // fade size
+                g.setColor(new Color(255, 255, 255, 160 - (i * 120 / Math.max(1, predictedPoints.size()))));
+                g.fill(new Ellipse2D.Double(p.x - sz/2, p.y - sz/2, sz, sz));
+            }
+            g.setStroke(oldStroke);
+        }
     }
 
     private void drawSun(Graphics2D g, int cx, int cy) {
@@ -444,6 +482,7 @@ class GamePanel extends JPanel implements ActionListener, MouseListener, MouseMo
             if (d < currentBird.radius + 10 && !currentBird.launched) {
                 dragging = true;
                 dragPoint.setLocation(e.getPoint());
+                predictTrajectory(currentBird); // initial prediction
             }
         }
     }
@@ -468,7 +507,9 @@ class GamePanel extends JPanel implements ActionListener, MouseListener, MouseMo
             currentBird.launched = true;
             // slight spin
             currentBird.spin = (Math.random() - 0.5) * 0.4;
-            // spawn next bird later when this one settles
+
+            // clear predicted arc (we launched)
+            predictedPoints.clear();
         }
     }
 
@@ -487,6 +528,11 @@ class GamePanel extends JPanel implements ActionListener, MouseListener, MouseMo
             currentBird.x = slingAnchor.x + dx;
             currentBird.y = slingAnchor.y + dy;
             dragPoint.setLocation(e.getX(), e.getY());
+
+            // ---- Trajectory prediction while dragging ----
+            predictTrajectory(currentBird);
+
+            repaint();
         }
     }
 
@@ -495,6 +541,54 @@ class GamePanel extends JPanel implements ActionListener, MouseListener, MouseMo
     @Override public void mouseClicked(MouseEvent e) {}
     @Override public void mouseEntered(MouseEvent e) {}
     @Override public void mouseExited(MouseEvent e) {}
+
+    /* -------- Trajectory prediction -------- */
+
+    /**
+     * Predict flight path based on the current bird position as if the user released it now.
+     * Uses the same simple physics constants as Bird.update to keep the ghost arc representative.
+     */
+    private void predictTrajectory(Bird b) {
+        synchronized (predictedPoints) {
+            predictedPoints.clear();
+            if (b == null) return;
+
+            // Derive the launch vector same as mouseReleased
+            double dx = slingAnchor.x - b.x;
+            double dy = slingAnchor.y - b.y;
+
+            double maxPower = 28;
+            double len = Math.hypot(dx, dy);
+            if (len > maxPower) {
+                dx = dx / len * maxPower;
+                dy = dy / len * maxPower;
+            }
+
+            double vx = dx * 0.9;
+            double vy = dy * 0.9;
+
+            double simX = b.x;
+            double simY = b.y;
+
+            // simulate a bunch of frames (approx 60 frames)
+            for (int i = 0; i < 120; i++) {
+                vy += 0.6;           // gravity per frame (matches Bird.update)
+                simX += vx;
+                simY += vy;
+
+                vx *= 0.999;
+                vy *= 0.999;
+
+                // stop if we hit ground
+                if (simY > H - 40) {
+                    simY = H - 40;
+                    predictedPoints.add(new Point2D.Double(simX, simY));
+                    break;
+                }
+                predictedPoints.add(new Point2D.Double(simX, simY));
+            }
+        }
+    }
 
     /* -------- Inner classes for game objects -------- */
 
@@ -520,7 +614,7 @@ class GamePanel extends JPanel implements ActionListener, MouseListener, MouseMo
                 vx *= 0.999;
                 vy *= 0.999;
             } else {
-                // stick to slingshot anchor initial pos handled by GamePanel while dragging
+                // while not launched we rely on GamePanel to position the bird while dragging
             }
         }
 
@@ -621,7 +715,7 @@ class GamePanel extends JPanel implements ActionListener, MouseListener, MouseMo
             vy += 0.3;
             x += vx;
             y += vy;
-            // ground collision
+            // ground collision (use panel height 600 as reference like earlier)
             if (y + h > 600 - 40) {
                 y = 600 - 40 - h;
                 vy *= -0.3;
