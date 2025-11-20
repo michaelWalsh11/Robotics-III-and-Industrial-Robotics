@@ -6,9 +6,8 @@ import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Iterator;
-
+import java.util.List;
 
 /**
  * AngryBirdsSwing.java
@@ -19,7 +18,7 @@ import java.util.Iterator;
  * Run:
  *   java IndustrialRobotics.LaucherStuffAndMAGNITUDE.AngryBirdsSwing
  *
- * Lush and colorful with trajectory prediction added.
+ * Lush and colorful with trajectory prediction that uses the Launcher backend.
  */
 public class AngryBirdsSwing extends JFrame {
     public AngryBirdsSwing() {
@@ -546,7 +545,7 @@ class GamePanel extends JPanel implements ActionListener, MouseListener, MouseMo
 
     /**
      * Predict flight path based on the current bird position as if the user released it now.
-     * Uses the same simple physics constants as Bird.update to keep the ghost arc representative.
+     * Uses the Launcher backend to compute an arc. Converts Launcher Points to panel coordinates.
      */
     private void predictTrajectory(Bird b) {
         synchronized (predictedPoints) {
@@ -567,25 +566,20 @@ class GamePanel extends JPanel implements ActionListener, MouseListener, MouseMo
             double vx = dx * 0.9;
             double vy = dy * 0.9;
 
-            double simX = b.x;
-            double simY = b.y;
+            // Convert the velocity vector to magnitude/theta for Launcher
+            double magnitude = Math.hypot(vx, vy);
+            double theta = Math.atan2(vy, vx);
 
-            // simulate a bunch of frames (approx 60 frames)
-            for (int i = 0; i < 120; i++) {
-                vy += 0.6;           // gravity per frame (matches Bird.update)
-                simX += vx;
-                simY += vy;
+            // Use Launcher backend (keeps its own gravity/time-step). Launcher uses int Points.
+            Launcher launcher = new Launcher((int)Math.round(b.x), (int)Math.round(b.y), theta, magnitude);
+            java.util.List<Point> arc = launcher.getLaunchData();
 
-                vx *= 0.999;
-                vy *= 0.999;
-
-                // stop if we hit ground
-                if (simY > H - 40) {
-                    simY = H - 40;
-                    predictedPoints.add(new Point2D.Double(simX, simY));
-                    break;
-                }
-                predictedPoints.add(new Point2D.Double(simX, simY));
+            // Convert arc Points into Point2D.Double for drawing
+            // Limit count to avoid oversized lists
+            int cap = Math.min(arc.size(), 250);
+            for (int i = 0; i < cap; i++) {
+                Point p = arc.get(i);
+                predictedPoints.add(new Point2D.Double(p.x, p.y));
             }
         }
     }
